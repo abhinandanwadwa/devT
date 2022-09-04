@@ -75,6 +75,69 @@ router.post('/register',[
         return res.status(500).send("Internal Server Error");
     }
 
-})
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Route 2: Authenticating an existing user: POST: http://localhost:8181/api/auth/login. No Login Required
+router.post('/login', [
+    body('username', "Please Enter a Vaild Username").isLength({ min: 4 }),
+    body('password', "Password Should Be At Least 6 Characters").isLength({ min: 6 }),
+], async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+
+    try {
+        const theUser = await pool.query(
+            "SELECT * FROM users WHERE username=$1",
+            [req.body.username]
+        );
+
+        if (theUser.rows.length !== 0) {
+            let checkHash = await bcrypt.compare(req.body.password, theUser.rows[0].password);
+            if (checkHash) {
+                let payload = {
+                    user: {
+                        id: theUser.rows[0].user_id
+                    }
+                }
+                const authtoken = jwt.sign(payload, JWT_SECRET);
+                return res.status(200).json({ authtoken });
+            }
+            else {
+                return res.status(403).json({ error: "Invalid Credentials" });
+            }
+        }
+        else {
+            return res.status(403).json({ error: "Invalid Credentials" });
+        }
+
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send("Internal Server Error");
+    }
+});
 
 module.exports = router;
