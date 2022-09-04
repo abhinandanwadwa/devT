@@ -46,9 +46,13 @@ router.post('/register',[
             }
             else {
                 // Create a new user then
+
+                var salt = await bcrypt.genSalt(10);
+                var hash = await bcrypt.hash(req.body.password, salt);
+
                 const newUser = await pool.query(
                     "INSERT INTO users(full_name, email_id, username, password) VALUES($1, $2, $3, $4) RETURNING *",
-                    [req.body.fullName, req.body.email, req.body.username, req.body.password]
+                    [req.body.fullName, req.body.email, req.body.username, hash]
                 );
 
                 let payload = {
