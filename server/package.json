@@ -1,0 +1,11 @@
+{
+  "name": "devt-server",
+  "version": "1.0.0",
+  "description": "A Place to connect and work with developers with similar interest",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Abhinandan",
+  "license": "ISC"
+}
